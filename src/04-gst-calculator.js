@@ -21,6 +21,8 @@
  *   - Return object: { baseAmount, gstRate, gstAmount, totalAmount }
  *   - category ko lowercase mein compare karo (case-insensitive)
  *   - Hint: Use toFixed(), parseFloat(), Number.isFinite(), toLowerCase()
+ * 
+ * 
  *
  * Validation:
  *   - Agar amount positive finite number nahi hai, return null
@@ -40,4 +42,42 @@
  */
 export function calculateGST(amount, category) {
   // Your code here
+  let categories = [
+    {category:"essential",gstRate:0},
+    {category:"food",gstRate:5},
+    {category:"standard",gstRate:12},
+    {category:"electronics",gstRate:18},
+    {category:"luxury",gstRate:28}
+
+  ]
+
+  let knownCategories = categories.map((category)=>category.category);
+  console.log("knownCategories:- ",knownCategories)
+
+  if(amount <= 0 || !Number.isFinite(amount) || typeof category !== "string"){
+    return null;
+  }
+
+  let category_lowercase = category.trim().toLowerCase();
+  // if category unknown hai then , return null
+  if(!knownCategories.includes(category_lowercase)){
+    return null
+  }
+
+  // category in which we buy the product, or matched category 
+  let selectedCategory = categories.filter((category_obj)=>category_obj.category === category_lowercase);
+
+  let gstRate = selectedCategory[0].gstRate;
+  let gstAmount = amount * gstRate /100;
+  let totalAmount = amount + gstAmount;
+
+  let finalObject = {
+    baseAmount : amount,
+    gstRate : gstRate,
+    gstAmount : parseFloat(gstAmount.toFixed(2)),
+    totalAmount : parseFloat(totalAmount.toFixed(2))
+  }
+
+  return finalObject;
+
 }

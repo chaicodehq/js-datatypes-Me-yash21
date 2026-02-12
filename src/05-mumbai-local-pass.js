@@ -43,4 +43,46 @@
  */
 export function generateLocalPass(passenger) {
   // Your code here
+
+  // if passenger object nahi hai ya null hai, retrun "INVALID PASS"  
+  if(typeof passenger !== "object" || Array.isArray(passenger) || passenger === null){
+    return "INVALID PASS"
+  }
+  
+  let requiredField = ["name","from","to","classType"]
+  // if  koi required field missing hai ya empty string hai , retrun "INVALID PASS"
+  if(
+    !requiredField.every((field)=> passenger.hasOwnProperty(field) && passenger[field].trim().length !== 0 )
+  ){
+    return "INVALID PASS"
+  }
+
+  // if classType "first" ya "second" nahi hai , return "INVALID ID"
+  let classType = passenger.classType.toUpperCase();
+  if(classType !== "FIRST" && classType !== "SECOND"){
+    return "INVALID PASS"
+  }
+
+  function toTitleCase(str){
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  }
+
+  function generatePassId(passenger){
+    let classType = passenger.classType;
+    let departureCity = passenger.from;
+    let destinationCity = passenger.to;
+
+    let passId = classType.charAt(0).toUpperCase() + departureCity.slice(0,3).toUpperCase() + destinationCity.slice(0,3).toUpperCase();
+
+    return passId;
+  }
+
+  let passengerName = passenger.name.toUpperCase();
+  let passengerFrom = toTitleCase(passenger.from);
+  let passengerTo = toTitleCase(passenger.to);
+  let passengerPassId = generatePassId(passenger);
+
+  let formattedPassString = `MUMBAI LOCAL PASS\n---\nName: ${passengerName}\nFrom: ${passengerFrom}\nTo: ${passengerTo}\nClass: ${classType}\nPass ID: ${passengerPassId}`
+
+  return formattedPassString;
 }

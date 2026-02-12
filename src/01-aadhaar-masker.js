@@ -29,4 +29,29 @@
  */
 export function maskAadhaar(aadhaarNumber) {
   // Your code here
+  if(typeof aadhaarNumber !== "string" || aadhaarNumber.trim().length !== 12){
+    return "INVALID";
+  }
+
+  //check string for non-digit character
+  let matchResult = aadhaarNumber.match(/^\d+$/);
+  //if matchResult is null then return the "INVALID";
+  if(!matchResult){
+    return "INVALID";
+  }
+
+  
+  //--- ONE method.
+  // let lastFourDigits = aadhaarNumber.slice(-4)
+  // let formatedAadhar = lastFourDigits.padStart(14,"XXXX-");
+  // console.log("FormatedAadhar:- ",formatedAadhar)
+
+  //second method.
+  // replace starting 8 digits with "XXXX-XXXX-"
+  let formatedAadhar = aadhaarNumber.replace(
+    aadhaarNumber.slice(0,8),
+    "XXXX-".repeat(2)
+  )
+
+  return formatedAadhar;
 }

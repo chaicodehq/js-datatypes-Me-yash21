@@ -31,4 +31,44 @@
  */
 export function fixBollywoodTitle(title) {
   // Your code here
+  if(typeof title !== "string" || title.trim().length === 0){
+    return "";
+  }
+
+
+  function capitalize(word){
+    let modifiedWord = word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    return modifiedWord;
+  }
+
+  function toTitleCase(str){
+    let exceptionWord = ["ka","ki","ke","se","aur","ya","the","of","in","a","an"];
+
+    let lowercaseString = str.toLowerCase();
+    let strWordArr = lowercaseString.split(" ");
+
+    // agar title ka pahala word , exceptionWords mein se ek hai toh, usko Uppercase mein convert karenge. our baki jagha exceptionWord lowercase hi rahenge.
+    let modifiedWordArr = strWordArr.map((word,index)=>{
+      // if 0th index par exception word hai toh use capitalize kar do.
+      if(index === 0 && exceptionWord.includes(word)){
+        return capitalize(word)
+      }else{
+        if(exceptionWord.includes(word)){
+          return word;
+        }else{
+          return capitalize(word);
+        }
+      }
+
+    })
+
+    let modifiedTitleStr = modifiedWordArr.join(" ")
+    return modifiedTitleStr;
+  }
+
+  let cleanTitle = title.trim().replace(/\s+/g," ");
+  
+  let modifiedMovieTitle = toTitleCase(cleanTitle);
+  return modifiedMovieTitle;
+
 }
