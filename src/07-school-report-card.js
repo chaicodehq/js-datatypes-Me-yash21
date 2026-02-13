@@ -42,4 +42,98 @@
  */
 export function generateReportCard(student) {
   // Your code here
+  if(typeof student !== "object" || Array.isArray(student) || student === null){
+    return null
+  }
+
+  if(typeof student.name !== "string" || student.name.trim() === ""){
+    return null
+  }
+
+  if(typeof student.marks !== "object" || Array.isArray(student.marks) || Object.keys(student.marks).length === 0){
+    return null;
+  }
+
+  if(
+    Object.values(student.marks).some((marksOfOneSubject)=> typeof marksOfOneSubject !== "number" || marksOfOneSubject < 0 || marksOfOneSubject > 100)
+  ){
+    return null;
+  }
+
+  let allSubjectMarks = Object.values(student.marks);
+  let numOfSubjects = allSubjectMarks.length;
+
+  let totalMarks = allSubjectMarks.reduce((total,curr)=> total + curr ,0);
+  let percentage = (totalMarks / (numOfSubjects * 100)) * 100;
+  percentage = parseFloat(percentage.toFixed(2));
+  let grade = null ;
+
+
+  switch(true){
+    case (percentage >= 90):
+      grade = "A+";
+      break;
+    case (percentage >=80):
+      grade = "A";
+      break;
+    case (percentage >= 70):
+      grade = "B";
+      break;
+    case (percentage >= 60):
+      grade = "C";
+      break;
+    case (percentage >= 40):
+      grade = "D";
+      break;
+    case (percentage < 40):
+      grade = "F";
+      break;
+  }
+
+  function getHighestAndLowestSub(marksEnteries,highestMark,lowestMark){
+    // sturucture of marksEnteries is :[[maths,56],[science,96]]
+    let highestSubjectArr = marksEnteries.filter((subjectArr)=> subjectArr[1] === highestMark)
+
+    let lowestSubjectArr = marksEnteries.filter((subjectArr)=> subjectArr[1]=== lowestMark);
+
+    return {
+      highestSubject:highestSubjectArr[0][0],
+      lowestSubject: lowestSubjectArr[0][0]
+    }
+  }
+
+  let marksEnteries = Object.entries(student.marks)
+  let highestMark = Math.max(...allSubjectMarks);
+  let lowestMark = Math.min(...allSubjectMarks);
+
+  const {highestSubject, lowestSubject} = getHighestAndLowestSub(marksEnteries,highestMark,lowestMark);
+
+  function getPassedAndFailedSub(marksEnteries){
+    let passedSubjectsEntries = marksEnteries.filter((subjectArr)=>subjectArr[1] >= 40);
+    let failedSubjectsEntries = marksEnteries.filter((subjectArr)=> subjectArr[1] < 40);
+
+    let passedSubjects = passedSubjectsEntries.map((subjectArr)=> subjectArr[0])
+    let failedSubjects = failedSubjectsEntries.map((subjectArr)=> subjectArr[0]);
+
+    return {
+      passedSubjects,
+      failedSubjects
+    }
+  }
+
+  const {passedSubjects, failedSubjects} = getPassedAndFailedSub(marksEnteries);
+
+  const reportCard = {
+    name:student.name,
+    totalMarks,
+    percentage,
+    grade,
+    highestSubject,
+    lowestSubject,
+    passedSubjects,
+    failedSubjects,
+    subjectCount:numOfSubjects
+  }
+
+  return reportCard;
 }

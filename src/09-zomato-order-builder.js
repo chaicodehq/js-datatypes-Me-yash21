@@ -47,4 +47,101 @@
  */
 export function buildZomatoOrder(cart, coupon) {
   // Your code here
+  if(!Array.isArray(cart) || cart.length === 0){
+    return null
+  }
+
+  // filter the items form the card , which qty is <=0 and price <=0
+  let filterCart = cart.filter((item)=>{
+    if(item.qty <= 0 || item.price < 0){
+      return false;
+    }
+    return true;
+  })
+
+  let items = filterCart.map((item)=>{
+    //if item has no addons property, assign empty array default\
+    if(!item["addons"]){
+      item.addons = []
+    }
+
+    let addonsPricesArray = item.addons.map((addonString)=>{
+      let addonArr = addonString.split(":")
+      let SingleAddonPrice = Number(addonArr[1]);
+
+      return SingleAddonPrice;
+    })
+
+    let sumOfAddonPrices = addonsPricesArray.reduce((acc,curr)=> acc + curr,0);
+
+    let itemTotalPrice = (item.price + sumOfAddonPrices) * item.qty;
+
+    return {
+      name:item.name,
+      qty: item.qty,
+      basePrice: item.price,
+      addonTotal: sumOfAddonPrices,
+      itemTotal: itemTotalPrice
+    }
+  })
+
+  let subtotal = items.reduce((total,currItem)=>total + currItem.itemTotal,0);
+
+  let deliveryFee = 0;
+
+  switch(true){
+    case (subtotal < 500):
+      deliveryFee = 30;
+      break;
+    case (subtotal <= 999 && subtotal >=500):
+      deliveryFee = 15;
+      break;
+    case (subtotal >=1000 ):
+      deliveryFee = 0;
+      break;
+  }
+
+  let gst = parseFloat((subtotal * 0.05).toFixed(2));
+  let discount = 0;
+
+  if(coupon){
+    let UpperCaseCoupon = coupon.toUpperCase();
+    
+    switch(UpperCaseCoupon){
+      case "FIRST50":
+        let discountOnSubtotal = subtotal * 0.5;
+        // Max discount price is Rs.150/-
+        discount = Math.min(discountOnSubtotal,150);
+        break;
+        case "FLAT100":
+          discount = 100;
+          break;
+        case "FREESHIP":
+          // DeliveryFee become 0 (And Discount = dileveryFee)
+          discount = deliveryFee;
+          deliveryFee = 0;
+          break;
+        default:
+          discount = 0;
+          break;
+    }
+  }
+      
+  let grandTotal = subtotal + deliveryFee + gst - discount;
+  grandTotal = parseFloat(grandTotal.toFixed(2));
+  if(grandTotal<0){
+    grandTotal = 0;
+  }
+
+  let finalResult = {
+    items,
+    subtotal,
+    gst,
+    deliveryFee,
+    discount,
+    grandTotal
+  }
+
+  return finalResult;
+
 }

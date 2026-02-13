@@ -39,5 +39,76 @@
  *   //      text: "I love this song", wordCount: 4, sentiment: "love" }
  */
 export function parseWhatsAppMessage(message) {
-  // Your code here
+  // Your code 
+  // regex to test the format of message 
+  //"DD/MM/YYYY, HH:MM - Sender Name: Anytext"
+  console.log("Message before Regex check:- ",message)
+  const regexTest = /^\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2} - [\w\W]+: /;
+
+  if(typeof message !== "string" || !regexTest.test(message)){
+    return null;
+  }
+
+  const indexOfComma = message.indexOf(",");
+  const indexOfHyphen = message.indexOf("-");
+  const indexOfColon = message.indexOf(": "); // here I am using ": " instead of ":" because there is also ":" single colon in time-format.
+
+  const date = message.slice(0,indexOfComma);
+  const time = message.slice(indexOfComma+1, indexOfHyphen).trim();
+  const sender = message.slice(indexOfHyphen+1, indexOfColon).trim();
+  let msgTxt = message.slice(indexOfColon+1).trim();
+  // if(message === "10/01/2025, 10:00 - Rahul Kumar Sharma: Hey")
+    
+    console.log(`full message string:- ,${message}\nindexOfComma:-${indexOfComma}\nindexOfHyphen:- ${indexOfHyphen}\nindexOfColon:- ${indexOfColon}\ndate:-${date}\nTime:- ${time}\nSender:- ${sender}\nmsgTxt:- ${msgTxt}` )
+
+    // console.log("date:- ",date)
+    // console.log("typeof date:- ",typeof date)
+
+    // console.log("time:- ",time)
+    // console.log("typeof time:- ",typeof time)
+
+    // console.log("sender:- ",sender)
+    // console.log("typeof sender:- ",typeof sender)
+
+    // console.log("msgTxt:- ",msgTxt)
+    // console.log("type of msgTxt:- ",typeof msgTxt)
+  // }
+  // clear the extra spaces(space more than one) between the msgTxt, by replacing more than one space with " " singal space. 
+  let text = msgTxt.replaceAll(/\s+/g," ");
+  let msgWords = text.split(" ");
+  let wordCount = msgWords.length;
+
+  // check the msgWords array , does it contain any one from "😂", ":)","haha".if yes,then make isMsgFunny true. 
+  let isMsgFunny = msgWords.some((word)=>{
+    let lwrCaseWord = word.toLowerCase();
+    return lwrCaseWord === "😂" || lwrCaseWord === ":)" || lwrCaseWord === "haha"
+  })
+
+  let isMsgLovely = msgWords.some((word)=>{
+    let lwrCaseWord = word.toLowerCase();
+    return lwrCaseWord === "❤" || lwrCaseWord === "love" || lwrCaseWord === "pyaar";
+  })
+
+  let sentiment;
+  // Agar message mein dono sentiment hai then , "funny" gets priority
+  if(isMsgFunny && isMsgLovely){
+    sentiment = "funny"
+  }else if(isMsgFunny){
+    sentiment = "funny"
+  }else if(isMsgLovely){
+    sentiment = "love"
+  }else{
+    sentiment = "neutral"
+  }
+
+  return {
+    date,
+    time,
+    sender,
+    text,
+    wordCount,
+    sentiment
+  }
+
+
 }
