@@ -102,7 +102,7 @@ export function validateForm(formData) {
     errors.state = "State is required"
   }
 
-  if(!agreeTerms){
+  if(!formData.agreeTerms){
     errors.agreeTerms = "Must agree to terms"
   }
 
