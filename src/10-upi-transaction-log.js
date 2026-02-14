@@ -48,4 +48,118 @@
  */
 export function analyzeUPITransactions(transactions) {
   // Your code here
+  if(!Array.isArray(transactions) || transactions.length === 0){
+    return null
+  }
+
+  const filterTransactions = transactions.filter((transactionObj)=>{
+    // if transaction amount is negative then skip it. 
+    if(transactionObj.amount < 0 ){
+      return false;
+    }
+    //  if transaction is not debit or  not a credit , then skip it. 
+    if(transactionObj.type !== "debit" && transactionObj.type !== "credit"){
+      return false;
+    }
+
+    return true;
+  })
+
+  if(filterTransactions.length === 0){
+    return null;
+  }
+
+  let {totalCredit, totalDebit} = filterTransactions.reduce((totalAmounts,curr)=>{
+    if(!totalAmounts["totalCredit"]){
+      totalAmounts.totalCredit = 0;
+    }
+    if(!totalAmounts["totalDebit"]){
+      totalAmounts.totalDebit = 0
+    }
+
+    if(curr.type === "credit"){
+      totalAmounts.totalCredit += curr.amount;
+    }if (curr.type === "debit") {
+      totalAmounts.totalDebit += curr.amount;
+    } 
+
+    return totalAmounts
+  },{})
+
+  let netBalance = totalCredit - totalDebit;
+
+  let transactionCount = filterTransactions.length;
+
+  let avgTransaction = Math.round((totalCredit + totalDebit)/transactionCount);
+
+  function getHighestTransaction(transactions){
+    let highestTransactionAmount = transactions[0].amount;
+    let indexOfHighestTransaction = 0;
+
+    transactions.forEach((transactionObj,index) => {
+      if(transactionObj.amount > highestTransactionAmount){
+        highestTransactionAmount = transactionObj.amount;
+        indexOfHighestTransaction = index
+      }
+    });
+
+    let highestTransactionFullObj = transactions[indexOfHighestTransaction];
+    return highestTransactionFullObj;
+  }
+
+  let highestTransaction = getHighestTransaction(filterTransactions);
+
+  // categoryBrakdown: object with category as key and total amount as value
+  let categoryBreakdown = filterTransactions.reduce((categoryObj,{category,amount})=>{    
+    if(!categoryObj[category]){
+      categoryObj[category] = 0;
+    }
+    categoryObj[category] += amount;
+
+    return categoryObj
+  },{})
+
+  let allContactFrequency = filterTransactions.reduce((contactFrequencies,{to})=>{
+    if(!contactFrequencies[to]){
+      contactFrequencies[to] = 0;
+    }
+    contactFrequencies[to] += 1;
+
+    return contactFrequencies;
+  },{})
+
+
+  function getHighestFrequentContact(allContactFrequency){
+    // allContactFrequency must be an Object;
+    let contactFrequenciesArr = Object.entries(allContactFrequency);
+    // contactFrequenciesArr = [["swiggy",2],["rahul",3]]
+    
+    // sort the array in decending order;
+    let sortedContactFrqArr = [...contactFrequenciesArr].sort(([a_contact,a_frq],[b_contact,b_frq])=>{
+      return b_frq - a_frq;
+    })
+
+    let highestFrequentContact = sortedContactFrqArr[0][0]
+    return highestFrequentContact;
+  }
+
+  let frequentContact = getHighestFrequentContact(allContactFrequency);
+
+  let allAbove100 = filterTransactions.every(({amount})=> amount > 100);
+  let hasLargeTransaction = filterTransactions.some(({amount})=> amount >=5000);
+
+  let finalObject = {
+    totalCredit,
+    totalDebit,
+    netBalance,
+    transactionCount,
+    avgTransaction,
+    highestTransaction,
+    categoryBreakdown,
+    frequentContact,
+    allAbove100,
+    hasLargeTransaction
+  }
+
+  return finalObject;
 }
